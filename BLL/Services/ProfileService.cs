@@ -37,6 +37,7 @@ public class ProfileService : IProfileService
                 FullName = farmer.User.FullName,
                 PhoneNumber = farmer.User.PhoneNumber,
                 Email = farmer.User.Email,
+                ProfileImageUrl = farmer.User.ProfileImageUrl,
                 DisplayName = farmer.DisplayName,
                 Description = farmer.Description,
                 PrimaryCityId = farmer.PrimaryCityId,
@@ -61,6 +62,7 @@ public class ProfileService : IProfileService
                 FullName = customer.User.FullName,
                 PhoneNumber = customer.User.PhoneNumber,
                 Email = customer.User.Email,
+                ProfileImageUrl = customer.User.ProfileImageUrl,
                 PrimaryCityId = customer.PrimaryCityId,
                 PrimaryCityName = customer.PrimaryCity?.Name
             };
@@ -84,14 +86,17 @@ public class ProfileService : IProfileService
 
         if (request.PrimaryCityId.HasValue)
         {
-            var cityExists = await _context.Cities.AnyAsync(x => x.Id == request.PrimaryCityId.Value && x.IsActive);
+            var cityExists = await _context.Cities.AnyAsync(x =>
+                x.Id == request.PrimaryCityId.Value && x.IsActive);
+
             if (!cityExists)
                 throw new BadRequestException("Selected city is invalid.");
         }
 
-        farmer.DisplayName = request.DisplayName;
-        farmer.Description = request.Description;
+        farmer.DisplayName = request.DisplayName.Trim();
+        farmer.Description = request.Description?.Trim();
         farmer.PrimaryCityId = request.PrimaryCityId;
+        farmer.User.ProfileImageUrl = NormalizeProfileImageUrl(request.ProfileImageUrl);
         farmer.IsProfileCompleted = true;
 
         await _context.SaveChangesAsync();
@@ -107,6 +112,7 @@ public class ProfileService : IProfileService
             FullName = farmer.User.FullName,
             PhoneNumber = farmer.User.PhoneNumber,
             Email = farmer.User.Email,
+            ProfileImageUrl = farmer.User.ProfileImageUrl,
             DisplayName = farmer.DisplayName,
             Description = farmer.Description,
             PrimaryCityId = farmer.PrimaryCityId,
@@ -127,12 +133,16 @@ public class ProfileService : IProfileService
 
         if (request.PrimaryCityId.HasValue)
         {
-            var cityExists = await _context.Cities.AnyAsync(x => x.Id == request.PrimaryCityId.Value && x.IsActive);
+            var cityExists = await _context.Cities.AnyAsync(x =>
+                x.Id == request.PrimaryCityId.Value && x.IsActive);
+
             if (!cityExists)
                 throw new BadRequestException("Selected city is invalid.");
         }
 
         customer.PrimaryCityId = request.PrimaryCityId;
+        customer.User.ProfileImageUrl = NormalizeProfileImageUrl(request.ProfileImageUrl);
+
         await _context.SaveChangesAsync();
 
         customer = await _context.Customers
@@ -146,8 +156,25 @@ public class ProfileService : IProfileService
             FullName = customer.User.FullName,
             PhoneNumber = customer.User.PhoneNumber,
             Email = customer.User.Email,
+            ProfileImageUrl = customer.User.ProfileImageUrl,
             PrimaryCityId = customer.PrimaryCityId,
             PrimaryCityName = customer.PrimaryCity?.Name
         };
+    }
+
+    private static string? NormalizeProfileImageUrl(string? profileImageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(profileImageUrl))
+            return null;
+
+        var trimmed = profileImageUrl.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
+            throw new BadRequestException("Profile image URL is invalid.");
+
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            throw new BadRequestException("Profile image URL must be an HTTP or HTTPS URL.");
+
+        return trimmed;
     }
 }

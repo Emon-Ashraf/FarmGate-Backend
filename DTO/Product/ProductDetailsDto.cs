@@ -16,6 +16,8 @@ public class ProductDetailsDto
     public string CityName { get; set; } = null!;
     public string PickupAddress { get; set; } = null!;
     public string? Instructions { get; set; }
+    public long FarmerId { get; set; }
+    public string? FarmerProfileImageUrl { get; set; }
     public string FarmerName { get; set; } = null!;
     public string? FarmerPhone { get; set; }
     public string? ImageUrl { get; set; }

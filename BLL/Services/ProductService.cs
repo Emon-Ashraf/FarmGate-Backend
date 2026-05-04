@@ -227,8 +227,10 @@ public class ProductService : IProductService
             CityName = product.PickupLocation.City.Name,
             PickupAddress = product.PickupLocation.AddressLine,
             Instructions = product.PickupLocation.Instructions,
+            FarmerId = product.FarmerId,
             FarmerName = product.Farmer.User.FullName,
             FarmerPhone = product.Farmer.User.PhoneNumber,
+            FarmerProfileImageUrl = product.Farmer.User.ProfileImageUrl,
             ImageUrl = product.ImageUrl
         };
     }

@@ -11,6 +11,8 @@ public class User : BaseEntity
     public RoleType Role { get; set; }
     public bool IsActive { get; set; } = true;
 
+    public string? ProfileImageUrl { get; set; }
+
     public Farmer? FarmerProfile { get; set; }
     public Customer? CustomerProfile { get; set; }
     public Admin? AdminProfile { get; set; }

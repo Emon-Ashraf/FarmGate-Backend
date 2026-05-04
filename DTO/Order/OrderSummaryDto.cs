@@ -10,6 +10,9 @@ public class OrderSummaryDto
     public decimal EstimatedProductTotal { get; set; }
     public decimal? ActualProductTotal { get; set; }
     public decimal ServiceFeeAmount { get; set; }
+
+    public DateTime? FeePaidAt { get; set; }
+
     public DateTime PickupDueAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

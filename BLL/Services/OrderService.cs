@@ -143,6 +143,7 @@ public class OrderService : IOrderService
             EstimatedProductTotal = x.EstimatedProductTotal,
             ActualProductTotal = x.ActualProductTotal,
             ServiceFeeAmount = x.ServiceFeeAmount,
+            FeePaidAt = x.FeePaidAt,
             PickupDueAt = x.PickupDueAt,
             CreatedAt = x.CreatedAt
         }).ToList();
@@ -160,6 +161,7 @@ public class OrderService : IOrderService
             EstimatedProductTotal = x.EstimatedProductTotal,
             ActualProductTotal = x.ActualProductTotal,
             ServiceFeeAmount = x.ServiceFeeAmount,
+            FeePaidAt = x.FeePaidAt,
             PickupDueAt = x.PickupDueAt,
             CreatedAt = x.CreatedAt
         }).ToList();

@@ -6,6 +6,7 @@ public class FarmerProfileDto
     public string FullName { get; set; } = null!;
     public string PhoneNumber { get; set; } = null!;
     public string? Email { get; set; }
+    public string? ProfileImageUrl { get; set; }
 
     public string DisplayName { get; set; } = null!;
     public string? Description { get; set; }

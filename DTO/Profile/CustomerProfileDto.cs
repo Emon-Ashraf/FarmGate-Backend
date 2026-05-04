@@ -6,6 +6,7 @@ public class CustomerProfileDto
     public string FullName { get; set; } = null!;
     public string PhoneNumber { get; set; } = null!;
     public string? Email { get; set; }
+    public string? ProfileImageUrl { get; set; }
 
     public long? PrimaryCityId { get; set; }
     public string? PrimaryCityName { get; set; }
