@@ -1,4 +1,4 @@
-﻿using BLL.Exceptions;
+using BLL.Exceptions;
 using BLL.Interfaces;
 using DAL.Data;
 using DTO.Profile;
@@ -9,10 +9,12 @@ namespace BLL.Services;
 public class ProfileService : IProfileService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IImageStorageService _images;
 
-    public ProfileService(ApplicationDbContext context)
+    public ProfileService(ApplicationDbContext context, IImageStorageService images)
     {
         _context = context;
+        _images = images;
     }
 
     public async Task<object> GetMyProfileAsync(long userId)
@@ -96,6 +98,7 @@ public class ProfileService : IProfileService
         farmer.DisplayName = request.DisplayName.Trim();
         farmer.Description = request.Description?.Trim();
         farmer.PrimaryCityId = request.PrimaryCityId;
+        await _images.ValidateReferenceAsync(request.ProfileImageUrl, userId, "avatar");
         farmer.User.ProfileImageUrl = NormalizeProfileImageUrl(request.ProfileImageUrl);
         farmer.IsProfileCompleted = true;
 
@@ -141,6 +144,7 @@ public class ProfileService : IProfileService
         }
 
         customer.PrimaryCityId = request.PrimaryCityId;
+        await _images.ValidateReferenceAsync(request.ProfileImageUrl, userId, "avatar");
         customer.User.ProfileImageUrl = NormalizeProfileImageUrl(request.ProfileImageUrl);
 
         await _context.SaveChangesAsync();

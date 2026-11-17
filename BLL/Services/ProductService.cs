@@ -1,4 +1,4 @@
-﻿using BLL.Exceptions;
+using BLL.Exceptions;
 using BLL.Interfaces;
 using DAL.Data;
 using DAL.Enums;
@@ -14,15 +14,17 @@ public class ProductService : IProductService
     private readonly IProductRepository _productRepository;
     private readonly IPickupLocationRepository _pickupLocationRepository;
     private readonly ApplicationDbContext _context;
+    private readonly IImageStorageService _images;
 
     public ProductService(
         IProductRepository productRepository,
         IPickupLocationRepository pickupLocationRepository,
-        ApplicationDbContext context)
+        ApplicationDbContext context, IImageStorageService images)
     {
         _productRepository = productRepository;
         _pickupLocationRepository = pickupLocationRepository;
         _context = context;
+        _images = images;
     }
 
     public async Task<ProductDetailsDto> CreateAsync(long userId, CreateProductDto request)
@@ -48,6 +50,7 @@ public class ProductService : IProductService
             throw new BadRequestException("Cannot create product on an inactive pickup location.");
 
         ValidateProductInput(request.Name, request.PricePerUnit, request.AvailableQuantity, request.UnitType);
+        await _images.ValidateReferenceAsync(request.ImageUrl, userId, "product");
 
         var product = new Product
         {
@@ -89,6 +92,7 @@ public class ProductService : IProductService
             throw new BadRequestException("Cannot move product to an inactive pickup location.");
 
         ValidateProductInput(request.Name, request.PricePerUnit, request.AvailableQuantity, request.UnitType);
+        await _images.ValidateReferenceAsync(request.ImageUrl, userId, "product");
 
         product.PickupLocationId = request.PickupLocationId;
         product.Name = request.Name;
