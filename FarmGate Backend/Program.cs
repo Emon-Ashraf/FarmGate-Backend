@@ -1,3 +1,7 @@
+using BLL.Interfaces;
+using FarmGate_Backend.Media;
+using System.Threading.RateLimiting;
+using System.Security.Claims;
 using DAL.Data;
 using FarmGate_Backend.Extensions;
 using FarmGate_Backend.Middleware;
@@ -10,6 +14,15 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<FileImageStorage>();
+builder.Services.AddHostedService<PendingImageCleanup>();
+builder.Services.AddSingleton<IImageStorageService>(sp => sp.GetRequiredService<FileImageStorage>());
+builder.Services.AddRateLimiter(options => {
+    options.RejectionStatusCode = 429;
+    options.AddPolicy("images", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "anonymous",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 20, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -99,7 +112,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
